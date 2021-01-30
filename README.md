@@ -3,7 +3,7 @@ iOS application for coding test
 
 **Setup:**
 
-1. Sign up for a SeatGeek developer account for access to their API 
+1. Sign up for a SeatGeek developer account to get API access 
 
 2. Clone this repository
 
