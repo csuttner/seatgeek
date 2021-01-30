@@ -15,6 +15,6 @@ git clone https://github.com/csuttner/seatgeek.git
 
 ```
 static let clientId = "YOUR CLIENT ID"
-static let clientSecret = "YOUR CLIENTSECRET"
+static let clientSecret = "YOUR CLIENT SECRET"
 ```
 4. Run the application on a device or emulator running iOS 12 or above
