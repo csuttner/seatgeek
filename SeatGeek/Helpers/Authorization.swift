@@ -8,6 +8,6 @@
 import Foundation
 
 struct Authorization {
-    static let clientId = "CLIENT_ID"
-    static let clientSecret = "CLIENT_SECRET"
+    static let clientId = "MjE1MjAzODB8MTYxMTg4NDExNy4wODYxNDM"
+    static let clientSecret = "97eeb2b4f8ad2d01876e0e4609cef92c8000623e4e9efaa74ca0726b4b0c3dd6"
 }

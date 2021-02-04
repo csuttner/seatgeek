@@ -26,8 +26,11 @@ class ImageRequest {
                 return
             }
             
-            let image = UIImage(data: data)!
-            completion(.success(image))
+            if let image = UIImage(data: data) {
+                completion(.success(image))
+            }
+            
+            completion(.failure(.cantProcessData))
         }
         dataTask.resume()
     }

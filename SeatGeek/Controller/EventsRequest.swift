@@ -30,7 +30,7 @@ class EventsRequest {
                 completion(.failure(.noDataAvailable))
                 return
             }
-            
+
             do {
                 let decoder = JSONDecoder()
                 let eventsResponse = try decoder.decode(EventsResponse.self, from: jsonData)
