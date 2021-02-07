@@ -15,7 +15,12 @@ class Repository {
     
     // In-memory storage of data from web
     // Events are parsed from JSON using EventsRequest
-    private var events = [Event]()
+    private var events = [Event]() {
+        didSet {
+            setupLikes()
+            setupSearchStrings()
+        }
+    }
     
     // Simple cache of images using dictionary of event ids and UIImages
     private var imageCache = [Int64 : UIImage]()
@@ -33,42 +38,53 @@ class Repository {
     // Repository is a single instance go between for models and views, avoiding data duplication or conflict
     static let instance = Repository()
     private init() {
-        loadEventData()
+        loadDataFromApi()
     }
     
     // Fire event request, setting class events property
     // Once we have events we can trigger a series of requests for each event image,
     // as well as handling of likes and search strings
-    func loadEventData() {
-        let eventsRequest = EventsRequest()
-        eventsRequest.getEvents { [weak self] result in
-            switch result {
-            case .failure(let error):
-                print(error)
-            case .success(let events):
-                self?.events = events
-                self?.loadImages(events: events)
-                self?.setupLikes()
-                self?.setupSearchStrings()
+    func loadDataFromApi() {
+        let semaphore = DispatchSemaphore(value: 0)
+        let dispatchQueue = DispatchQueue.global(qos: .background)
+        
+        dispatchQueue.async {
+            
+            EventsRequest().getEvents { result in
+                switch result {
+                case .failure(let error):
+                    print("error getting events: \(error)")
+                case .success(let events):
+                    print("got events successfully")
+                    self.events = events
+                }
+                semaphore.signal()
             }
+            semaphore.wait()
+            
+            for event in self.events {
+                if let url = event.performers.first?.image {
+                    ImageRequest(url: url).getImage { result in
+                        switch result {
+                        case .failure(let error):
+                            print("error getting image: \(error)")
+                        case .success(let image):
+                            print("got image successfully")
+                            self.imageCache.updateValue(image, forKey: event.id)
+                        }
+                        semaphore.signal()
+                    }
+                    semaphore.wait()
+                }
+            }
+            
+            self.reloadData()
         }
     }
     
-    // Series of requests to obtain images for each event and cache them
-    func loadImages(events: [Event]) {
-        for event in events {
-            if let imageUrl = event.performers.first?.image {
-                let imageRequest = ImageRequest(resourceUrl: imageUrl)
-                imageRequest.getImage { [weak self] result in
-                    switch result {
-                    case .failure(let error):
-                        print(error)
-                    case .success(let image):
-                        self?.imageCache.updateValue(image, forKey: event.id)
-                        self?.checkComplete()
-                    }
-                }
-            }
+    func reloadData() {
+        DispatchQueue.main.async {
+            self.repoDelegate.loadAllEvents()
         }
     }
     

@@ -10,14 +10,15 @@
 import Foundation
 
 class EventsRequest {
-    let resourceUrl: URL
+    
+    let url: URL
     
     init() {
         
         // Set resource to be equal to endpoint with client id and client secret parameters passed in from Authentication
         let resourceString = "https://api.seatgeek.com/2/events?client_id=\(Authorization.clientId)&client_secret=\(Authorization.clientSecret)"
         guard let resourceUrl = URL(string: resourceString) else { fatalError() }
-        self.resourceUrl = resourceUrl
+        self.url = resourceUrl
     }
     
     // Asynchronously obtain data from endpoint, parsing JSON to array of events
@@ -25,7 +26,7 @@ class EventsRequest {
     func getEvents(completion: @escaping(Result<[Event], RequestError>) -> ()) {
         
         // Only need the data parameter in the URLSession completion handler
-        let dataTask = URLSession.shared.dataTask(with: resourceUrl) { data, _, _ in
+        let dataTask = URLSession.shared.dataTask(with: url) { data, _, _ in
             guard let jsonData = data else {
                 completion(.failure(.noDataAvailable))
                 return
